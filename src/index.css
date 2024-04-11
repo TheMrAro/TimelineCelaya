@@ -11,3 +11,17 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.yearDisplay {
+  font-size: 20px; /* Cambia el tamaño de la fuente */
+  font-family: 'Arial', sans-serif; /* Cambia la familia de fuentes */
+  font-weight: bold; /* Hace que el texto sea en negrita */
+  color: #00050a; /* Cambia el color del texto */
+}
+
+
+
+
+
+
+
