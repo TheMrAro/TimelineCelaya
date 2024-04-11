@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import L from 'leaflet';
 import { useMap } from 'react-leaflet';
 
-const TitleControl = ({ year, pobTot }) => {
+const TitleControl = ({ year, pobTot, Area_HAS }) => {
   const map = useMap();
 
   useEffect(() => {
@@ -18,11 +18,15 @@ const TitleControl = ({ year, pobTot }) => {
         container.style.fontFamily = 'Arial, sans-serif';
         container.style.fontSize = '16px';
         container.style.color = '#333';
-        // Formatear el texto que se mostrará
+
+        // Texto a mostrar en el modal
+
         container.innerHTML = `
           <strong>Expansión urbana de Celaya</strong><br><br>
           Año: ${year}<br>
-          Población de la mancha urbana: ${pobTot > 0 ? `${pobTot.toLocaleString()} habitantes` : 'Sin datos'}
+          Área (HAS): ${Area_HAS.toLocaleString()}<br>
+          Población de la mancha urbana: ${pobTot > 0 ? `${pobTot.toLocaleString()} habitantes` : 'Sin datos'}<br>
+
         `;
         return container;
       }
@@ -34,9 +38,9 @@ const TitleControl = ({ year, pobTot }) => {
     return () => {
       titleControl.remove();
     };
-  }, [map, year, pobTot]); // Asegúrate de incluir year y pobTot en las dependencias de useEffect
+  }, [map, year, pobTot, Area_HAS]); // Se deben incluír en las dependencias de useEffect, excepto el map
 
-  return null; // Este componente no renderiza nada por sí mismo
+  return null;
 };
 
 export default TitleControl;

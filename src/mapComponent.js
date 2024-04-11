@@ -1,4 +1,5 @@
 // MapComponent.js
+import Slider from '@mui/material/Slider';
 import React, { useState, useRef } from 'react';
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -42,26 +43,50 @@ const MapComponent = () => {
       <MapContainer
         center={[20.5175, -100.8147]}
         zoom={13}
-        className="MapContainer" // Añade esta línea
+        className="MapContainer" // Esta es la línea que has añadido
         style={{ height: '90vh', width: '100%' }}
         whenCreated={mapInstance => { mapRef.current = mapInstance; }}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {geoJsonLayersData[currentYearIndex] && <GeoJSON key={geoJsonLayersData[currentYearIndex].year} data={geoJsonLayersData[currentYearIndex].data} />}
-        <TitleControl 
-  year={geoJsonLayersData[currentYearIndex].year} 
-  pobTot={geoJsonLayersData[currentYearIndex].data.features[0].properties.PobTot}
-/>
+        <TitleControl
+          year={geoJsonLayersData[currentYearIndex].year}
+          pobTot={geoJsonLayersData[currentYearIndex].data.features[0].properties.PobTot}
+          Area_HAS={geoJsonLayersData[currentYearIndex].data.features[0].properties.Area_HAS}
+        />
       </MapContainer>
-      <input
-        type="range"
-        min="0"
-        max={geoJsonLayersData.length - 1}
+      {/* Slider de Material UI para controlar el año */}
+
+
+      <br></br><Slider
+        aria-labelledby="discrete-slider"
         value={currentYearIndex}
-        onChange={(e) => setCurrentYearIndex(parseInt(e.target.value))}
-        style={{ width: '100%', marginTop: '20px' }}
+        onChange={(event, newValue) => setCurrentYearIndex(newValue)}
+        step={1}
+        marks
+        min={0}
+        max={geoJsonLayersData.length - 1}
+        valueLabelDisplay="auto"
+        valueLabelFormat={(index) => geoJsonLayersData[index].year}
+        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '20px auto', width: '80%'  }} // Estilo modificado aquí
+        sx={{
+          width: '100%', // Asegúrate de ajustar esto según necesites
+          mt: 2, // Aumenta el margen superior del Slider si es necesario
+          '& .MuiSlider-mark': {
+            backgroundColor: '#000', // Personaliza según necesites
+            height: 8,
+            width: 2,
+            '&.MuiSlider-markActive': {
+              opacity: 1,
+              backgroundColor: 'currentcolor',
+            },
+          },
+          '& .MuiSlider-markLabel': {
+            color: 'red', // Personaliza según necesites
+            fontSize: '0.7rem',
+          },
+        }}
       />
-      <div style={{ textAlign: 'center', marginTop: '10px' }}className="yearDisplay">{geoJsonLayersData[currentYearIndex].year}</div>
     </div>
   );
 };
