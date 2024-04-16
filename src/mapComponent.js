@@ -1,6 +1,6 @@
 // MapComponent.js
 import Slider from '@mui/material/Slider';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import TitleControl from './TitleControl'; //
@@ -38,12 +38,58 @@ const MapComponent = () => {
   const [currentYearIndex, setCurrentYearIndex] = useState(0);
   const mapRef = useRef(null);
 
+  //_______________________________________________________________
+
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playInterval, setPlayInterval] = useState(null);
+
+  const startPlaying = () => {
+    if (!isPlaying && currentYearIndex < geoJsonLayersData.length - 1) {
+      setIsPlaying(true);
+      const interval = setInterval(() => {
+        setCurrentYearIndex((prevIndex) => {
+          if (prevIndex >= geoJsonLayersData.length - 1) {
+            clearInterval(interval);
+            setIsPlaying(false);
+            return 0;
+          }
+          return prevIndex + 1;
+        });
+      }, 1000); // Cambia la duración según tus necesidades
+      setPlayInterval(interval);
+    }
+  };
+
+  const stopPlaying = () => {
+    if (isPlaying) {
+      clearInterval(playInterval);
+      setIsPlaying(false);
+      setPlayInterval(null);
+    }
+  };
+
+  const resetTimeline = () => {
+    setCurrentYearIndex(0);
+    if (isPlaying) {
+      stopPlaying();  // Detiene la reproducción si está activa
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (playInterval) {
+        clearInterval(playInterval);
+      }
+    };
+  }, [playInterval]);
+
+
   return (
     <div>
       <MapContainer
         center={[20.5175, -100.8147]}
         zoom={13}
-        className="MapContainer" // Esta es la línea que has añadido
+        className="MapContainer"
         style={{ height: '90vh', width: '100%' }}
         whenCreated={mapInstance => { mapRef.current = mapInstance; }}
       >
@@ -55,38 +101,42 @@ const MapComponent = () => {
           Area_HAS={geoJsonLayersData[currentYearIndex].data.features[0].properties.Area_HAS}
         />
       </MapContainer>
-      {/* Slider de Material UI para controlar el año */}
-
-
-      <br></br><Slider
-        aria-labelledby="discrete-slider"
-        value={currentYearIndex}
-        onChange={(event, newValue) => setCurrentYearIndex(newValue)}
-        step={1}
-        marks
-        min={0}
-        max={geoJsonLayersData.length - 1}
-        valueLabelDisplay="auto"
-        valueLabelFormat={(index) => geoJsonLayersData[index].year}
-        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '20px auto', width: '80%'  }} // Estilo modificado aquí
-        sx={{
-          width: '100%', // Asegúrate de ajustar esto según necesites
-          mt: 2, // Aumenta el margen superior del Slider si es necesario
-          '& .MuiSlider-mark': {
-            backgroundColor: '#000', // Personaliza según necesites
-            height: 8,
-            width: 2,
-            '&.MuiSlider-markActive': {
-              opacity: 1,
-              backgroundColor: 'currentcolor',
+  
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '20px auto', width: '80%' }}>
+        {/* Botones y Slider en un mismo contenedor */}
+        <button onClick={isPlaying ? stopPlaying : startPlaying}>
+          {isPlaying ? 'Pausa' : 'Reproducir'}
+        </button>
+        <button onClick={resetTimeline}>Reiniciar</button>
+        <Slider
+          aria-labelledby="discrete-slider"
+          value={currentYearIndex}
+          onChange={(event, newValue) => setCurrentYearIndex(newValue)}
+          step={1}
+          marks
+          min={0}
+          max={geoJsonLayersData.length - 1}
+          valueLabelDisplay="auto"
+          valueLabelFormat={(index) => geoJsonLayersData[index].year}
+          sx={{
+            flexGrow: 1,
+            mx: 2, // Margin horizontal para separar el slider de los botones
+            '& .MuiSlider-mark': {
+              backgroundColor: '#000',
+              height: 8,
+              width: 2,
+              '&.MuiSlider-markActive': {
+                opacity: 1,
+                backgroundColor: 'currentcolor',
+              },
             },
-          },
-          '& .MuiSlider-markLabel': {
-            color: 'red', // Personaliza según necesites
-            fontSize: '0.7rem',
-          },
-        }}
-      />
+            '& .MuiSlider-markLabel': {
+              color: 'red',
+              fontSize: '0.7rem',
+            },
+          }}
+        />
+      </div>
     </div>
   );
 };
