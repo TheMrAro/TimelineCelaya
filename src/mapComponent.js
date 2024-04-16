@@ -17,6 +17,8 @@ import C2014 from './timeline/data/C2014.js';
 import C2020 from './timeline/data/C2020.js';
 import C2023 from './timeline/data/C2023.js';
 import SigloXIX from './timeline/data/SigloXIX.js';
+import Switch from '@mui/material/Switch';
+
 
 const geoJsonLayersData = [
   { year: 'Siglo XIX', data: SigloXIX },
@@ -42,6 +44,9 @@ const MapComponent = () => {
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [playInterval, setPlayInterval] = useState(null);
+
+  const [compareYearIndex, setCompareYearIndex] = useState(0);
+  const [compareActive, setCompareActive] = useState(false);
 
   const startPlaying = () => {
     if (!isPlaying && currentYearIndex < geoJsonLayersData.length - 1) {
@@ -83,31 +88,42 @@ const MapComponent = () => {
     };
   }, [playInterval]);
 
+  const handleCompareSwitchChange = (event) => {
+    const isActive = event.target.checked;
+    setCompareActive(isActive);
+    setCompareYearIndex(0);  // Esto restablecerá el segundo slider al inicio siempre que se active o desactive el switch
+  };
+
 
   return (
     <div>
       <MapContainer
-        center={[20.5175, -100.8147]}
+        center={[20.528, -100.81]}
         zoom={13}
         className="MapContainer"
-        style={{ height: '90vh', width: '100%' }}
+        style={{ height: '80vh', width: '100%' }}
         whenCreated={mapInstance => { mapRef.current = mapInstance; }}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {geoJsonLayersData[currentYearIndex] && <GeoJSON key={geoJsonLayersData[currentYearIndex].year} data={geoJsonLayersData[currentYearIndex].data} />}
+        {compareActive && geoJsonLayersData[compareYearIndex] && (
+          <GeoJSON key={geoJsonLayersData[compareYearIndex].year + '-compare'} data={geoJsonLayersData[compareYearIndex].data} style={{ color: 'red' }} />
+        )}
         <TitleControl
           year={geoJsonLayersData[currentYearIndex].year}
           pobTot={geoJsonLayersData[currentYearIndex].data.features[0].properties.PobTot}
           Area_HAS={geoJsonLayersData[currentYearIndex].data.features[0].properties.Area_HAS}
         />
       </MapContainer>
-  
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '20px auto', width: '80%' }}>
+        <br></br>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '20px auto', width: '80%'}}>
+      <div style={{ width: '14%', textAlign: 'center'}}> {/* Ajustar el ancho según sea necesario */}
         {/* Botones y Slider en un mismo contenedor */}
         <button onClick={isPlaying ? stopPlaying : startPlaying}>
           {isPlaying ? 'Pausa' : 'Reproducir'}
         </button>
         <button onClick={resetTimeline}>Reiniciar</button>
+        </div>
         <Slider
           aria-labelledby="discrete-slider"
           value={currentYearIndex}
@@ -137,6 +153,46 @@ const MapComponent = () => {
           }}
         />
       </div>
+
+
+{/* Contenedor para el segundo slider y el switch */}
+<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '20px auto', width: '80%'}}>
+<div style={{ width: '14%', textAlign: 'center'}}> {/* Ajustar el ancho según sea necesario */}
+        <Switch checked={compareActive} onChange={(handleCompareSwitchChange)}/>
+        Comparar
+        </div>
+        <Slider
+          disabled={!compareActive}
+          value={compareYearIndex}
+          onChange={(event, newValue) => setCompareYearIndex(newValue)}
+          step={1}
+          marks
+          min={0}
+          max={geoJsonLayersData.length - 1}
+          valueLabelDisplay="auto"
+          valueLabelFormat={(index) => geoJsonLayersData[index].year}
+          sx={{
+            flexGrow: 1,
+            mx: 2, // Margin horizontal para separar el slider de los botones
+            color:'red',
+            '& .MuiSlider-mark': {
+              backgroundColor: '#000',
+              height: 8,
+              width: 2,
+              '&.MuiSlider-markActive': {
+                opacity: 1,
+                backgroundColor: 'currentcolor',
+              },
+            },
+            '& .MuiSlider-markLabel': {
+              color: 'red',
+              fontSize: '0.7rem',
+            },
+          }}
+        />
+      </div>
+
+
     </div>
   );
 };

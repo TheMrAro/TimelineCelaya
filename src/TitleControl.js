@@ -23,9 +23,9 @@ const TitleControl = ({ year, pobTot, Area_HAS }) => {
 
         container.innerHTML = `
           <strong>Expansión urbana de Celaya</strong><br><br>
-          Año: ${year}<br>
-          Área (HAS): ${Area_HAS.toLocaleString()}<br>
-          Población de la mancha urbana: ${pobTot > 0 ? `${pobTot.toLocaleString()} habitantes` : 'Sin datos'}<br>
+          <b>Año:</b> ${year}<br>
+          <b>Área (HAS):</b> ${Area_HAS.toLocaleString()}<br>
+          <b>Población de la mancha urbana:</b> ${pobTot > 0 ? `${pobTot.toLocaleString()} habitantes` : 'Sin datos'}<br>
 
         `;
         return container;
